@@ -1,0 +1,750 @@
+Commands:
+{print}Print every line by default unless specific columns are mentioned
+/pattern/ {print}Print lines matching pattern
+NR==3To print only 3rd record
+NF==3To print records with only 3 fields
+-FField specifier. Can be “:”, “~” or any other field seperator
+Built in Variables:
+1. OFS : Output field separator. Stores the output field separator which separates
+the different fields present in the output when they are printed. Default is blank
+space
+2. FS : Field separator. Used to divide the fields on the input line. Default is white
+space
+3. NR : Record of no of rows
+4. NF : Record of no of fields within the current input record
+5. Begin : Specifies the text that has to be added before the output.
+6. END : Specifies the text that has to be displayed after all output records
+AWK EDITOR
+A)
+Create a file empdata, which contains the following fields:-
+Fieldname Datatype Value
+1. Employee name character
+2. Employee code numeric starts with letter ‘E’
+3. Department code character MKT, HRD, PUR
+4. Grade character A-C
+5. Designation character manager, director, gm, executive
+6. Years of experience numeric
+7. Date of birth dd-mm-yy
+8. Region character Pune, Mumbai etc...
+9. Basic pay numeric
+Insert at least five records in above file; character fields in each record may not be same
+in the same case. ‘~’ is used as a field separator. Give commands for the following:-
+shakaal@ubuntu:~$ gedit empdata
+85cat empdata
+shakaal@ubuntu:~$ cat empdata
+abc~E1~HRD~A~gm~5~10-10-1987~Pune~15000
+Jai~E2~MKT~B~manager~6~1-2-1988~Mumbai~10000
+Kamal~E3~PUR~C~director~7~22-1-1988~Pune~10000
+Raj~E4~MKT~A~executive~6~10-9-1986~Mumbai~130000
+def~E5~HRD~B~gm~9~3-2-1984~Pune~13000
+shakaal@ubuntu:~$ cat empdata
+abc~E1~HRD~A~gm~5~10-10-1987~Pune~15000
+Jai~E2~MKT~B~manager~6~1-2-1988~Mumbai~10000
+Kamal~E3~PUR~C~director~7~22-1-1988~Pune~10000
+Raj~E4~MKT~A~executive~6~10-9-1986~Mumbai~130000
+def~E5~HRD~B~gm~9~3-2-1984~Pune~13000
+Jinal~E6~HRD~B~manager~10~30-11-1987~Pune~20000
+Minal~E7~HRD~C~gm~12~5-5-1985~Delhi~17000
+Anna~E8~PUR~A~executive~17~22-12-1977~Mumbai~120000
+Hina~E9~MKT~C~manager~4~12-12-1997~Mumbai~1800
+Jai~E10~HRD~A~executive~15~19-3-1973~Mumbai~180000
+1. Display all employees who are manager in office.
+shakaal@ubuntu:~$ awk -F"~" '$5 =="manager" {print $0}' empdata
+Jai~E2~MKT~B~manager~6~1-2-1988~Mumbai~10000
+Jinal~E6~HRD~B~manager~10~30-11-1987~Pune~20000
+Hina~E9~MKT~C~manager~4~12-12-1997~Mumbai~1800
+2. List the details of an employee “Jai” in Mumbai office.
+shakaal@ubuntu:~$ awk -F"~" '$1 =="Jai" && $8 =="Mumbai" {print $0}' empdata
+Jai~E2~MKT~B~manager~6~1-2-1988~Mumbai~10000
+Jai~E10~HRD~A~executive~15~19-3-1973~Mumbai~180000
+3. Display all employees who are not in the department MKT. display the
+output sorted on department code.
+shakaal@ubuntu:~$ awk -F"~" '$3 !="MKT" {print $0}' empdata | sort -t"~" -k 3
+Jai~E10~HRD~A~executive~15~19-3-1973~Mumbai~180000
+abc~E1~HRD~A~gm~5~10-10-1987~Pune~15000
+def~E5~HRD~B~gm~9~3-2-1984~Pune~13000
+Jinal~E6~HRD~B~manager~10~30-11-1987~Pune~20000
+Minal~E7~HRD~C~gm~12~5-5-1985~Delhi~17000
+Anna~E8~PUR~A~executive~17~22-12-1977~Mumbai~120000
+86Kamal~E3~PUR~C~director~7~22-1-1988~Pune~10000
+4. Display all employees whose years of experience are more than 5.
+shakaal@ubuntu:~$ awk -F"~" '$6 > 5 {print $1}' empdata
+Jai
+Kamal
+Raj
+def
+Jinal
+Minal
+Anna
+Jai
+5. List only employee name, department code and basic pay of employees who
+are executive.
+shakaal@ubuntu:~$ awk -F"~" '$5 == "executive" {print $1,$3,$9}' empdata
+Raj MKT 130000
+Anna PUR 120000
+Jai HRD 180000
+6. Display all employees having grade ‘A’.
+shakaal@ubuntu:~$ awk -F"~" '$4 == "A" {print $1}' empdata
+abc
+Raj
+Anna
+Jai
+7. Count total number of employees whose department code is HRD.
+shakaal@ubuntu:~$ awk -F"~" '$3 == "HRD"' empdata | wc -l
+5
+8. Display employee’s names with salary above 10,000.
+shakaal@ubuntu:~$ awk -F"~" '$9 > 10000 {print $1}' empdata
+abc
+Raj
+def
+Jinal
+Minal
+Anna
+Jai
+879. Display only designation and basic pay of employees having number of
+experience between 3 and 5.
+shakaal@ubuntu:~$ awk -F"~" '$6 >= 3 && $6 <= 5 {print $5,$9}' empdata
+gm 15000
+manager 1800
+10. Find the number of employees in Pune office.
+shakaal@ubuntu:~$ awk -F"~" '$8 == "Pune"' empdata | wc -l
+4
+11. Display employees who get basic pay less than 15000, also calculate and
+display average basic pay.
+shakaal@ubuntu:~$ awk -F"~" '$9 < 15000 {print $0} {total +=$9;count++} END
+{print "Average salary="total/count}' empdata
+Jai~E2~MKT~B~manager~6~1-2-1988~Mumbai~10000
+Kamal~E3~PUR~C~director~7~22-1-1988~Pune~10000
+def~E5~HRD~B~gm~9~3-2-1984~Pune~13000
+Hina~E9~MKT~C~manager~4~12-12-1997~Mumbai~1800
+Average salary=51680
+12. Locate the employees with same date of birth in Pune office.
+shakaal@ubuntu:~$ awk -F"~" '$8=="Pune" && n=x[$7]{print n"\n"$0;} {x[$7]=$0}'
+empdata
+Jinal~E6~HRD~B~manager~10~30-11-1987~Pune~20000
+Elsa~E11~HRD~A~executive~9~30-11-1987~Pune~30000
+13. Locate all for Raj, Jai and Kamal as employee name.
+shakaal@ubuntu:~$ awk -F"~" '$1=="Raj"||$1=="Jai"||$1=="Kamal" {print $0}'
+empdata
+Jai~E2~MKT~B~manager~6~1-2-1988~Mumbai~10000
+Kamal~E3~PUR~C~director~7~22-1-1988~Pune~10000
+Raj~E4~MKT~A~executive~6~10-9-1986~Mumbai~130000
+Jai~E10~HRD~A~executive~15~19-3-1973~Mumbai~180000
+or
+shakaal@ubuntu:~$ awk -F"~" '$1~/Raj|Jai|Kamal/ {print $0}' empdata
+Jai~E2~MKT~B~manager~6~1-2-1988~Mumbai~10000
+Kamal~E3~PUR~C~director~7~22-1-1988~Pune~10000
+Raj~E4~MKT~A~executive~6~10-9-1986~Mumbai~130000
+Jai~E10~HRD~A~executive~15~19-3-1973~Mumbai~180000
+8814. Locate all except for Raj, Jai and Kamal as employee name.
+shakaal@ubuntu:~$ awk -F"~" '$1!="Raj" && $1!="Jai" && $1!="Kamal" {print $0}'
+empdata
+abc~E1~HRD~A~gm~5~10-10-1987~Pune~15000
+def~E5~HRD~B~gm~9~3-2-1984~Pune~13000
+Jinal~E6~HRD~B~manager~10~30-11-1987~Pune~20000
+Minal~E7~HRD~C~gm~12~5-5-1985~Delhi~17000
+Anna~E8~PUR~A~executive~17~22-12-1977~Mumbai~120000
+Hina~E9~MKT~C~manager~4~12-12-1997~Mumbai~1800
+Elsa~E11~HRD~A~executive~9~30-11-1987~Pune~30000
+or
+shakaal@ubuntu:~$ awk -F"~" '$1!~/Raj|Jai|Kamal/ {print $0}' empdata
+abc~E1~HRD~A~gm~5~10-10-1987~Pune~15000
+def~E5~HRD~B~gm~9~3-2-1984~Pune~13000
+Jinal~E6~HRD~B~manager~10~30-11-1987~Pune~20000
+Minal~E7~HRD~C~gm~12~5-5-1985~Delhi~17000
+Anna~E8~PUR~A~executive~17~22-12-1977~Mumbai~120000
+Hina~E9~MKT~C~manager~4~12-12-1997~Mumbai~1800
+Elsa~E11~HRD~A~executive~9~30-11-1987~Pune~30000
+15. Find the employees who have designation as director and find the 40% of
+basic pay as da and 15% of basic pay as hra.
+shakaal@ubuntu:~$ awk -F"~" 'BEGIN{printf
+"Name\tECode\tDCode\tGrade\tDesig\t\tEXP\tDOB\t\tRegion\tPay\t\tDA\t\tHRA\t\n"}
+$5=="director" {da=0.4*$9;hra=0.15*$9}{printf
+$1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t\t"da"\t\t"hra"\n"}' empdata
+Name ECode DCode Grade Desig EXP DOB Region Pay DA HRA
+abc E1 HRD A gm 5 10-10-1987 Pune 15000
+Jai E2 MKT B manager 6 1-2-1988 Mumbai 10000
+Kamal E3 PUR C director 7 22-1-1988 Pune 10000 4000 1500
+Raj E4 MKT A executive 6 10-9-1986 Mumbai 130000 4000 1500
+def E5 HRD B gm 9 3-2-1984 Pune 13000 4000 1500
+Jinal E6 HRD B manager 10 30-11-1987 Pune 20000 4000 1500
+Minal E7 HRD C gm 12 5-5-1985 Delhi 17000 4000 1500
+Anna E8 PUR A executive 17 22-12-1977 Mumbai 120000 4000 1500
+Hina E9 MKT C manager 4 12-12-1997 Mumbai 1800 4000 1500
+Jai E10 HRD A executive 15 19-3-1973 Mumbai 180000 4000 1500
+Elsa E11 HRD A executive 9 30-11-1987 Pune 30000 4000
+891500
+16. Store employee name and date of birth in a file’ nbdata’.
+shakaal@ubuntu:~$ awk -F"~" '{print $1,$7}' empdata > nbdata
+shakaal@ubuntu:~$ cat nbdata
+abc 10-10-1987
+Jai 1-2-1988
+Kamal 22-1-1988
+Raj 10-9-1986
+def 3-2-1984
+Jinal 30-11-1987
+Minal 5-5-1985
+Anna 22-12-1977
+Hina 12-12-1997
+Jai 19-3-1973
+Elsa 30-11-1987
+B)
+Create a file student with following fields:-
+Fieldname Datatype Value
+Student code numeric
+Student name character
+Batch code character B11-B15
+No. of modules numeric 1-5
+Average marks numeric
+Insert at least five records in above file; ‘:’ is used as a field separator. Give commands
+for the following:-
+shakaal@ubuntu:~$ gedit student
+S1:An:B11:5:70
+S2:Joe:B12:2:40
+S3:Naina:B15:4:60
+S4:anika:B13:1:30
+S5:Abel:B14:2:45
+S6:Sandra:B12:3:66
+S7:Hana:B13:5:90
+S8:Yukta:B15:3:57
+S9:alLy:B13:4:77
+S10:Liya:B11:1:50
+S11:Naina:B14:3:65
+S12:Abel:B11:4:50
+901. Display the details of student in order of their names ignoring case.
+shakaal@ubuntu:~$ awk -F":" '{print $0}' student | sort -t":" -k 2 -f
+S12:Abel:B11:4:50
+S5:Abel:B14:2:45
+S9:alLy:B13:4:77
+S1:An:B11:5:70
+S4:anika:B13:1:30
+S7:Hana:B13:5:90
+S2:Joe:B12:2:40
+S10:Liya:B11:1:50
+S11:Naina:B14:3:65
+S3:Naina:B15:4:60
+S6:Sandra:B12:3:66
+S8:Yukta:B15:3:57
+2. Display the details of students whose number of modules is greater than 3.
+shakaal@ubuntu:~$ awk -F":" '$4>3 {print $0}' student
+S1:An:B11:5:70
+S3:Naina:B15:4:60
+S7:Hana:B13:5:90
+S9:alLy:B13:4:77
+S12:Abel:B11:4:50
+3. Store the list of rank holders in file ‘merit’ along with student code and
+student name, and marks & display its contents.
+shakaal@ubuntu:~$ awk -F":" '{print $1,$2,$5}' student | sort -t" " -k 3 -nr > merit
+shakaal@ubuntu:~$ cat merit
+S7 Hana 90
+S9 alLy 77
+S1 An 70
+S6 Sandra 66
+S11 Naina 65
+S3 Naina 60
+S8 Yukta 57
+S12 Abel 50
+S10 Liya 50
+S5 Abel 45
+S2 Joe 40
+S4 anika 30
+4. Count the number of students in batch B13.
+91shakaal@ubuntu:~$ awk -F":" '$3=="B13"{count++}END{printf "The number of
+students in batch 13 is %d\n",count}' student
+The number of students in batch 13 is 3
+5. Display the names of students with same names.
+shakaal@ubuntu:~$ awk -F":" 'n=x[$2] {print n"\n"$2}{x[$2]=$2}' student
+Naina
+Naina
+Abel
+Abel
+6. Display the students belonging to batch codes B12 or B15.
+shakaal@ubuntu:~$ awk -F":" '$3~/B12|B13/ {printf "Student:
+%s\tBatch:%s\n",$2,$3}' student
+Student: Joe Batch:B12
+Student: anika Batch:B13
+Student: Sandra Batch:B12
+Student: Hana Batch:B13
+Student: alLy Batch:B13
+7. Display all the names not starting with ‘a’ or ‘A’.
+shakaal@ubuntu:~$ awk -F":" 'BEGIN{printf "Names not starting with 'a' or 'A':\n"}
+$2~/^[^aA]/ {printf "%s\n",$2}' student
+Names not starting with a or A:
+Joe
+Naina
+Sandra
+Hana
+Yukta
+Liya
+Naina
+8. Display all the names starting with ‘a’ or ‘A’.
+shakaal@ubuntu:~$ awk -F":" 'BEGIN{printf "Names starting with 'a' or 'A':\n"}
+$2~/^[aA]/ {printf "%s\n",$2}' student
+Names starting with a or A:
+An
+anika
+Abel
+alLy
+Abel
+929. Display and count the number of students having marks in the range 40 to
+60. Also display the total and average marks.
+shakaal@ubuntu:~$ awk -F":" 'BEGIN{printf"Students who scored marks between 40
+and 50:\n"}$5>=40 && $5<=50 {print
+$0;count++;total+=$5;avg=total/count}END{printf "Count: %d\nTotal marks:
+%d\nAverage Marks: %d\n",count,total,avg}' student
+Students who scored marks between 40 and 50:
+S2:Joe:B12:2:40
+S5:Abel:B14:2:45
+S10:Liya:B11:1:50
+S12:Abel:B11:4:50
+Count: 4
+Total marks: 185
+Average Marks: 46
+10. Display the student’s records from line number 2 to 4.
+shakaal@ubuntu:~$ awk -F":" 'FNR>=2 && FNR<=4 {print $0}' student
+S2:Joe:B12:2:40
+S3:Naina:B15:4:60
+S4:anika:B13:1:30
+11. Display the student’s records that are having number of fields 5.
+shakaal@ubuntu:~$ awk -F":" 'NF==5 {print $0}' student
+S1:An:B11:5:70
+S2:Joe:B12:2:40
+S3:Naina:B15:4:60
+S4:anika:B13:1:30
+S5:Abel:B14:2:45
+S6:Sandra:B12:3:66
+S7:Hana:B13:5:90
+S8:Yukta:B15:3:57
+S9:alLy:B13:4:77
+S10:Liya:B11:1:50
+S11:Naina:B14:3:65
+S12:Abel:B11:4:50
+12. Display the student’s records that are having number of fields less than or
+equal to 4.
+shakaal@ubuntu:~$ awk -F":" 'NF<=4 {print $0}' student
+S13:Jane:4
+S14:Rene:B12:1
+9313. Display the student code, student name and marks that are having number
+of fields greater than 5.
+shakaal@ubuntu:~$ awk -F":" 'NF>5 {print $1,$2,$5}' student
+S15 Jenna 65
+14. Display the student’s name having the length greater than 3.
+shakaal@ubuntu:~$ awk -F":" '$2~/..../ {print $2}' student
+Naina
+anika
+Abel
+Sandra
+Hana
+Yukta
+alLy
+Liya
+Naina
+Abel
+Jane
+Rene
+or
+shakaal@ubuntu:~$ awk -F":" 'length($2)>3 {print $2}' student
+Naina
+anika
+Abel
+Sandra
+Hana
+Yukta
+alLy
+Liya
+Naina
+Abel
+Jane
+Rene
+15. Display the student’s records having the length of student name less than or
+equal to 3.
+shakaal@ubuntu:~$ awk -F":" 'length($2)<=3 {print $0}' student
+S1:An:B11:5:70
+S2:Joe:B12:2:40
+16. Display the student’s records having the length less than or equal to 15.
+94shakaal@ubuntu:~$ awk -F":" 'length($0)<=15 {print $0}' student
+S1:An:B11:5:70
+S2:Joe:B12:2:40
+S13:Jane:4
+S14:Rene:B12:1
+S15 Jenna 65
+17. Display the student’s records having the length greater than or equal to 15.
+shakaal@ubuntu:~$ awk -F":" 'length($0)>=15 {print $0}' student
+S2:Joe:B12:2:40
+S3:Naina:B15:4:60
+S4:anika:B13:1:30
+S5:Abel:B14:2:45
+S6:Sandra:B12:3:66
+S7:Hana:B13:5:90
+S8:Yukta:B15:3:57
+S9:alLy:B13:4:77
+S10:Liya:B11:1:50
+S11:Naina:B14:3:65
+S12:Abel:B11:4:50
+18. Display the student’s records having the length is in the range 5 to 15.
+shakaal@ubuntu:~$ awk -F":" 'length($0)>=5 && length($0)<=15 {print $0}' student
+S1:An:B11:5:70
+S2:Joe:B12:2:40
+S13:Jane:4
+S14:Rene:B12:1
+S15 Jenna 65
+19. Display the line number and index having character ‘b’ in student name.
+shakaal@ubuntu:~$ awk -F":" '$2~/b/ {print NR" "$0" Index:" index($2,"b")}' student
+5 S5:Abel:B14:2:45 Index:2
+12 S12:Abel:B11:4:50 Index:2
+20. Display the line number, student name and index having character ‘b’ in
+student name.
+shakaal@ubuntu:~$ awk -F":" '$2~/b/ {print NR" "$2" Index:" index($2,"b")}' student
+5 Abel Index:2
+12 Abel Index:2
+21. Display the index, student name and marks having character ‘b’ in student
+name.
+95shakaal@ubuntu:~$ awk -F":" 'BEGIN{printf "Line Number:\t Name:\t
+Marks:\t\n"}$2~/b/ {print NR" \t\t "$2,"\t",$5}' student
+Line Number: Name: Marks:
+5 Abel 45
+12 Abel 50
+22. Display the line number, index, student name and marks having character
+‘b’ in student name.
+shakaal@ubuntu:~$ awk -F":" 'BEGIN{printf "Line Number:\t Name:\t Marks:\t Index
+of 'b' in Name:\n"}$2~/b/ {print NR" \t\t "$2,"\t",$5,"\t",index($2,"b")}' student
+Line Number: Name: Marks: Index of b in Name:
+5 Abel 45 2
+12 Abel 50 2
+
+
+reate a file with the name Student with the following fields separated by a blank
+space having the below mentioned values:
+Field Roll No First Name Last Name
+Date of Birth Marks (out of
+600)
+Values Numeric Character
+Character
+dd-mm-yy
+Numeric
+Insert at least 5 records in this file.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ nano student
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ cat student
+40 shakaal pathak 30-05-1999 450
+04 Bilal Ali 23-12-1997 400
+50 shakaal Pathak 20-03-1999 400
+73 Shaf Faarouqui 23-08-1997 500
+70 shakaal Pujari 19-06-1995 350
+Write and execute the commands for the following using grep with character class:
+1. Search for the First Name as “Tom”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep -i
+shakaal student
+40 shakaal pathak 30-05-1999 450
+2. Search for the four letter First Name only.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep -i
+shakaal student
+40 shakaal pathak 30-05-1999 450
+3. Search for the Roll No starting with “1”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep
+^4 student
+40 shakaal pathak 30-05-1999 450
+4. Search for the marks with last digit as “0”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep
+0$ student
+40 shakaal pathak 30-05-1999 450
+04 Bilal Ali 23-12-1997 400
+50 shakaal Pathak 20-03-1999 400
+73 Shaf Faarouqui 23-08-1997 500
+70 shakaal Pujari 19-06-1995 350
+5. Search for the name with first letter in First Name is ‘A’ and last character
+is ‘r’ in Last Name.
+48shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ cut -d" " -f
+2,3 student | grep ^M | grep i$ > sh2
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep -f sh2
+student
+40 shakaal pathak 30-05-1999 450
+6. Search for the Roll No that are not stating with “2”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep ^[^2]
+student
+40 shakaal pathak 30-05-1999 450
+04 Bilal Ali 23-12-1997 400
+50 shakaal Pathak 20-03-1999 400
+73 Shaf Faarouqui 23-08-1997 500
+70 shakaal Pujari 19-06-1995 350
+7. Search for the date of birth in which year ends with “0”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ cut -d" " -f 4
+student | grep 0$ > sh3
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep -f sh3
+student
+20 Tanmay Nikam 20-08-1990 490
+8. Search for the First Name which starts with an uppercase letter vowel.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ cut -d" " -f 2
+student | grep ^[AEIOU] > sh4
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep -f sh4
+student
+50 shakaal Pathak 20-03-1999 400
+70 shakaal Pujari 19-06-1995 350
+Create the file with the name “test_u4” with the following contents:-
+01:accounts:6213:a
+06:sales:6213:f
+05:production:5489:e
+04:personnel:7630:a
+02:admin:6521:b
+01:marketing:6521:c
+07:sales:6135:a
+01:accounts:6003:h
+4910:marketing:6215:j
+11:production:3480:i
+14:Personnel:7306:k
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ cat test_u4
+01:accounts:6213:a
+06:sales:6213:f
+05:production:5489:e
+04:personnel:7630:a
+02:admin:6521:b
+01:marketing:6521:c
+07:sales:6135:a
+01:accounts:6003:h
+10:marketing:6215:j
+11:production:3480:i
+14:Personnel:7306:k
+Write and execute the commands for the following using grep:-
+1. Display the records containing “accounts”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep accounts
+test_u4
+01:accounts:6213:a
+01:accounts:6003:h
+2. Display all records containing “personnel”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+personnel test_u4
+04:personnel:7630:a
+grep
+3. Display the record of “Admin”. Observe the output?
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep Admin
+test_u4
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+4. Count the occurrence of “production”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+production test_u4
+2
+5. Display all the records of “marketing” along with line numbers.
+50
+grep
+-cshakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+marketing test_u4
+6:01:marketing:6521:c
+9:10:marketing:6215:j
+grep
+-n
+6. Display all the records except “sales”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep -v sales
+test_u4
+01:accounts:6213:a
+05:production:5489:e
+04:personnel:7630:a
+02:admin:6521:b
+01:marketing:6521:c
+01:accounts:6003:h
+10:marketing:6215:j
+11:production:3480:i
+14:Personnel:7306:k
+7. Display the records of “accounts” and “admin”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+accounts -e admin test_u4
+01:accounts:6213:a
+02:admin:6521:b
+01:accounts:6003:h
+8. Display the filenames containing “marketing”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+marketing *
+cut_testu22
+cut_testu23
+grep: dd1: Is a directory
+grep: dd3: Is a directory
+grep: dd5: Is a directory
+testu2
+testu4
+test_u4
+grep-e
+grep-l
+9. Store the patterns “admin”, “production” and “sales” in new file and
+display the records containing these patterns.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ cat > newfile
+admin
+production
+51sales
+^C
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ cat newfile
+admin
+production
+sales
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+grep
+-f
+newfile test_u4
+06:sales:6213:f
+05:production:5489:e
+07:sales:6135:a
+11:production:3480:i
+10. Display all the records not containing “marketing” along with line
+numbers.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep -vn
+marketing test_u4
+1:01:accounts:6213:a
+2:06:sales:6213:f
+3:05:production:5489:e
+4:04:personnel:7630:a
+5:02:admin:6521:b
+7:07:sales:6135:a
+8:01:accounts:6003:h
+10:11:production:3480:i
+11:14:Personnel:7306:k
+11. Count all the records not containing “production”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+production test_u4
+9
+grep
+-vc
+12. Display all the records of “admin” along with line numbers.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep -n admin
+test_u4
+5:02:admin:6521:b
+13. Display all the record except “admin” along with line numbers.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep
+admin test_u4
+52
+-nv1:01:accounts:6213:a
+2:06:sales:6213:f
+3:05:production:5489:e
+4:04:personnel:7630:a
+6:01:marketing:6521:c
+7:07:sales:6135:a
+8:01:accounts:6003:h
+9:10:marketing:6215:j
+10:11:production:3480:i
+11:14:Personnel:7306:k
+14. Display all records starting with “1”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+test_u4
+10:marketing:6215:j
+11:production:3480:i
+14:Personnel:7306:k
+15. Display all records not starting with “1”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+test_u4
+01:accounts:6213:a
+06:sales:6213:f
+05:production:5489:e
+04:personnel:7630:a
+02:admin:6521:b
+01:marketing:6521:c
+07:sales:6135:a
+01:accounts:6003:h
+grep^1
+grep^[^1]
+16. Display all records starting with “1” along with line numbers.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep -n ^1
+test_u4
+9:10:marketing:6215:j
+10:11:production:3480:i
+11:14:Personnel:7306:k
+17. Display all records not starting with “1” along with line numbers.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep -n ^[^1]
+test_u4
+1:01:accounts:6213:a
+2:06:sales:6213:f
+533:05:production:5489:e
+4:04:personnel:7630:a
+5:02:admin:6521:b
+6:01:marketing:6521:c
+7:07:sales:6135:a
+8:01:accounts:6003:h
+18. Display all records end with “a”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+test_u4
+01:accounts:6213:a
+04:personnel:7630:a
+07:sales:6135:a
+19. Display all records not end with “a”.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+test_u4
+06:sales:6213:f
+05:production:5489:e
+02:admin:6521:b
+01:marketing:6521:c
+01:accounts:6003:h
+10:marketing:6215:j
+11:production:3480:i
+14:Personnel:7306:k
+grepa$
+grep[^a]$
+20. Display all records containing nothing along with line numbers.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep -n ^$
+test_u4
+4:
+8:
+13:
+21. Display all the lines with first character as “6” followed by any five
+characters at the end.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep 6.....$
+test_u4
+01:accounts:6213:a
+06:sales:6213:f
+02:admin:6521:b
+01:marketing:6521:c
+07:sales:6135:a
+5401:accounts:6003:h
+10:marketing:6215:j
+22. Display all the records starting with “0” followed by any three characters
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep 0...$
+test_u4
+01:accounts:6003:h
+14:Personnel:7306:k
+23. Display all the records with first character not as “6” followed by any five
+characters at the end.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep [^6].....
+test_u4
+01:accounts:6213:a
+06:sales:6213:f
+05:production:5489:e
+04:personnel:7630:a
+02:admin:6521:b
+01:marketing:6521:c
+07:sales:6135:a
+01:accounts:6003:h
+10:marketing:6215:j
+11:production:3480:i
+14:Personnel:7306:k
+24. Display all the records not starting with “0” followed by any three
+characters.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ grep [^0]...
+test_u4
+01:accounts:6213:a
+06:sales:6213:f
+05:production:5489:e
+04:personnel:7630:a
+02:admin:6521:b
+01:marketing:6521:c
+07:sales:6135:a
+01:accounts:6003:h
+10:marketing:6215:j
+11:production:3480:i
+14:Personnel:7306:k
+55Write and execute the commands for the following using egrep and fgrep :
+1. Display all the records with the names “sengupta”, “dasgupta” and
+“ramgupta” using egrep command.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+grep
+-E
+'(sengupta|dasgupta|ramgupta)' file
+2 Jai dasgupta 456
+3 Raj ramgupta 789
+4 kamal sengupta
+2. Display all the records of “ramgupta” and “dasgupta” using egrep
+command.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$
+egrep
+'(das|ram)gupta' file
+2 Jai dasgupta 456
+3 Raj ramgupta 789
+3. Display all the records of “raj”, “jai” and “kamal” using fgrep command.
+shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ fgrep 'raj
+> jai
+> kamal' file
+4 kamal sengupta
