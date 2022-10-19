@@ -1,3 +1,108 @@
+
+--------------------------------------------
+Installing Apache
+Sudo apt update
+Sudo apt install apache2
+Sudo ufw app list
+Sudo ufw allow ‘Apache Full’
+Sudo systemctl status apache2
+Create a simple html and php file to test the apache server
+    1. Navigate to var/www/html folder
+Create the html file
+Restart apache2
+Check the webpage in the browser
+Install PHP
+Check php version
+Create new php file
+Restart apache
+Check in the browser
+
+------------------------------------------------
+Installing MYSQL
+Sudo apt update
+Sudo apt install mysql-server
+Sudo apt install mysql-server
+    4. Check mysql installation by executing commands
+admin1234@admin1234-virtual-machine:~/Desktop$ sudo mysql -p -u root
+Enter password: 
+
+------------------------------------------------
+Installing Python 
+Sudo apt install software-properties-common
+Sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget
+Change directory
+Download python from the web
+Unzip package downloaded
+Enter in the Python directory
+Enter the command as below
+Sudo make altinstall
+Check version
+Create a python file and check if it is executing successfully
+
+
+Alternate Method:
+    1. Sudo apt update
+    2. Sudo apt install software-properties-common
+    3. Sudo add-apt-repository ppa:deadsnakes/ppa
+    4. Sudo apt update
+    5. Sudo apt install python 3.8
+    6. Check the version and execute a python file
+
+
+------------------------------------------------
+PHPMYADMIN
+sudo apt update
+sudo apt install phpmyadmin
+restart apache2 and mysql and check status
+    4. Enable a2enconf for phpMyadmin or make changes in apache.conf file as follows.
+A2enconf is a script that enables the specified configuration file within the apache2 configuration
+Username as root and password set up. On can also execute a php file and check changes in mysql via PHPMyAdmin
+
+------------------------------------------------
+Secure Shell (SSH)
+Install putty on windows
+ sudo apt install openssh-server
+sudo systemctl status ssh
+    4. Check the IP address of the machine
+admin1234@admin1234-virtual-machine:~/Desktop$ hostname
+
+------------------------------------------------
+FTP
+Sudo apt-get -y install vsftpd 
+Copy the conf file in the same folder (/etc)
+   3. Add port 21 to the firewall
+      admin1234@admin1234-virtual-machine:~/Desktop$ sudo ufw  enable
+      Firewall is active and enabled on system startup
+      admin1234@admin1234-virtual-machine:~/Desktop$ sudo ufw status
+      Status: active
+      admin1234@admin1234-virtual-machine:~/Desktop$ sudo ufw allow 21/tcp
+      Rule added
+      Rule added (v6)
+ 4. Add Port 20
+admin1234@admin1234-virtual-machine:~/Desktop$ sudo ufw allow 20/tcp
+
+5. Add ports 40000 to 50000
+admin1234@admin1234-virtual-machine:~/Desktop$ sudo ufw allow 40000:50000/tcp
+
+6. Allow OpenSSH in the firewall
+admin1234@admin1234-virtual-machine:~/Desktop$ sudo ufw allow OpenSSH
+
+Restart vsftpd and check the IP address
+Traverse the vsftpd.conf file and make changes as below
+
+anonymous_enable = NO
+write_enable = YES
+local_enable = YES
+pasy_min_port = 40000
+pasy_max_port = 50000
+
+Restart server
+Check ftp
+
+
+
+
+
 Commands:
 {print}Print every line by default unless specific columns are mentioned
 /pattern/ {print}Print lines matching pattern
@@ -748,108 +853,6 @@ shakaalUnix@DESKTOP-RL2BVO4:/mnt/c/Users/HP/Desktop/Linux$ fgrep 'raj
 > jai
 > kamal' file
 4 kamal sengupta
-
---------------------------------------------
-Installing Apache
-Sudo apt update
-Sudo apt install apache2
-Sudo ufw app list
-Sudo ufw allow ‘Apache Full’
-Sudo systemctl status apache2
-Create a simple html and php file to test the apache server
-    1. Navigate to var/www/html folder
-Create the html file
-Restart apache2
-Check the webpage in the browser
-Install PHP
-Check php version
-Create new php file
-Restart apache
-Check in the browser
-
-------------------------------------------------
-Installing MYSQL
-Sudo apt update
-Sudo apt install mysql-server
-Sudo apt install mysql-server
-    4. Check mysql installation by executing commands
-admin1234@admin1234-virtual-machine:~/Desktop$ sudo mysql -p -u root
-Enter password: 
-
-------------------------------------------------
-Installing Python 
-Sudo apt install software-properties-common
-Sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget
-Change directory
-Download python from the web
-Unzip package downloaded
-Enter in the Python directory
-Enter the command as below
-Sudo make altinstall
-Check version
-Create a python file and check if it is executing successfully
-
-
-Alternate Method:
-    1. Sudo apt update
-    2. Sudo apt install software-properties-common
-    3. Sudo add-apt-repository ppa:deadsnakes/ppa
-    4. Sudo apt update
-    5. Sudo apt install python 3.8
-    6. Check the version and execute a python file
-
-
-------------------------------------------------
-PHPMYADMIN
-sudo apt update
-sudo apt install phpmyadmin
-restart apache2 and mysql and check status
-    4. Enable a2enconf for phpMyadmin or make changes in apache.conf file as follows.
-A2enconf is a script that enables the specified configuration file within the apache2 configuration
-Username as root and password set up. On can also execute a php file and check changes in mysql via PHPMyAdmin
-
-------------------------------------------------
-Secure Shell (SSH)
-Install putty on windows
- sudo apt install openssh-server
-sudo systemctl status ssh
-    4. Check the IP address of the machine
-admin1234@admin1234-virtual-machine:~/Desktop$ hostname
-
-------------------------------------------------
-FTP
-Sudo apt-get -y install vsftpd 
-Copy the conf file in the same folder (/etc)
-   3. Add port 21 to the firewall
-      admin1234@admin1234-virtual-machine:~/Desktop$ sudo ufw  enable
-      Firewall is active and enabled on system startup
-      admin1234@admin1234-virtual-machine:~/Desktop$ sudo ufw status
-      Status: active
-      admin1234@admin1234-virtual-machine:~/Desktop$ sudo ufw allow 21/tcp
-      Rule added
-      Rule added (v6)
- 4. Add Port 20
-admin1234@admin1234-virtual-machine:~/Desktop$ sudo ufw allow 20/tcp
-
-5. Add ports 40000 to 50000
-admin1234@admin1234-virtual-machine:~/Desktop$ sudo ufw allow 40000:50000/tcp
-
-6. Allow OpenSSH in the firewall
-admin1234@admin1234-virtual-machine:~/Desktop$ sudo ufw allow OpenSSH
-
-Restart vsftpd and check the IP address
-Traverse the vsftpd.conf file and make changes as below
-
-anonymous_enable = NO
-write_enable = YES
-local_enable = YES
-pasy_min_port = 40000
-pasy_max_port = 50000
-
-Restart server
-Check ftp
-
-
 
 
 
